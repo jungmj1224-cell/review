@@ -140,7 +140,8 @@ tr.row.flash td{animation:flash 1.4s ease}
 .tier-head{width:100%;display:flex;align-items:center;gap:14px;padding:14px 18px;border:0;background:transparent;text-align:left}
 .tier-num{font-family:var(--ff-head);font-size:20px;font-weight:800;letter-spacing:-.02em;min-width:38px;line-height:1}
 .tier-head .stars{font-size:17px}
-.tier-count{margin-left:auto;font-size:12px;color:var(--ink-2);background:var(--surface-2);border:1px solid var(--line);padding:3px 10px;border-radius:var(--r-sm)}
+.tier-label{font-weight:300;font-size:12px;color:color-mix(in srgb,var(--accent) 30%,var(--ink-3));min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tier-count{flex:none;margin-left:auto;font-size:12px;color:var(--ink-2);background:var(--surface-2);border:1px solid var(--line);padding:3px 10px;border-radius:var(--r-sm)}
 .chev{width:16px;height:16px;flex:none;transition:transform .18s;color:var(--ink-3)}
 .tier.collapsed .chev{transform:rotate(-90deg)}
 .tier.collapsed .tier-body{display:none}
@@ -325,6 +326,7 @@ hr.sep{border:0;border-top:1px solid var(--line);margin:24px 0}
   .score-in label{font-size:10px;margin-bottom:2px}
   .rt th{font-size:calc(.78em - 1px)}
   .chip{height:22px;padding:0 8px;font-size:10px}
+  .tier-label{font-size:10.5px;white-space:normal;line-height:1.35;word-break:keep-all}
   .sub-tools{gap:4px;margin-bottom:12px}
   .cal-pop .ph{font-size:8.5px}
   .cal-pop button b{font-size:10px}
@@ -534,6 +536,9 @@ const FB_VER = "10.12.2";
 
 /* ---------- 기본값 ---------- */
 const TIERS = [5,4.5,4,3.5,3,2.5,2,1.5,1,0.5];
+// 별점 칸 옆 설명
+const TIER_LABEL = { 5:'찢었다', 4.5:'와 재밌어! 끝나서 넘 아쉽', 4:'넘 재밌었다', 3.5:'꽤 잼!', 3:'ㄱㅊ, 무난 재밌게 읽음', 2.5:'마음에 안드는 점이 더 강한/하차작들' };
+const tierLabel = t => TIER_LABEL[t] || '쓰레기통';
 // 평균에 들어가는 세부 항목 (리디는 따로)
 const SUBS = [['writing','필력&개연성'],['fun','재미'],['chars','등장인물'],['story','스토리']];
 const $ = s => document.querySelector(s);
@@ -772,7 +777,7 @@ function render(){
         </div></div></td></tr>`;
     }).join('');
     return `<section class="tier${collapsed ? ' collapsed' : ''}" data-tier="${t}">
-      <button class="tier-head" data-tierhead="${t}" aria-expanded="${!collapsed}">${CHEV}${starsHTML(t)}<span class="tier-count num">${rows.length}편</span></button>
+      <button class="tier-head" data-tierhead="${t}" aria-expanded="${!collapsed}">${CHEV}${starsHTML(t)}<span class="tier-label">${esc(tierLabel(t))}</span><span class="tier-count num">${rows.length}편</span></button>
       <div class="tier-body"><table class="rt">
         <thead><tr><th class="c-tog"></th>${th('title', '제목')}${th('avg', '평균', 'c-avg')}${th('date', '날짜', 'c-date')}</tr></thead>
         <tbody>${body}</tbody></table></div>
@@ -896,7 +901,7 @@ list.addEventListener('pointerdown', e => {
   if (!row || e.button > 0) return;
   drag.startX = e.clientX; drag.startY = e.clientY;
   dragCancelTimer();
-  drag.timer = setTimeout(() => { drag.timer = null; dragStart(row); }, 450);
+  drag.timer = setTimeout(() => { drag.timer = null; dragStart(row); }, 1500);   // 1.5초 꾹 눌러야 잡혀요
 });
 list.addEventListener('pointermove', e => {
   if (drag.timer && (Math.abs(e.clientX - drag.startX) > 8 || Math.abs(e.clientY - drag.startY) > 8)) dragCancelTimer();
