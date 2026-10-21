@@ -164,6 +164,10 @@ table.rt{width:100%;border-collapse:collapse;font-size:var(--fs-table)}
 .avg-pill{vertical-align:middle}
 .rt tr.row td.c-date span{vertical-align:middle}
 .rt .c-date{width:96px;white-space:nowrap;text-align:right;padding-right:18px}
+.rt tr.row{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.rt tr.row.dragging td{background:var(--accent-soft)!important;box-shadow:inset 0 1px 0 var(--accent),inset 0 -1px 0 var(--accent)}
+.rt tr.row.dragging .ttl{color:var(--accent)}
+body.drag-on{overscroll-behavior:none}
 .rt tr.row td{padding:12px 12px;border-bottom:1px solid var(--line);cursor:pointer;transition:background .12s}
 .rt tr.row td.c-date{padding-right:18px}
 .rt tr.row:hover td{background:var(--surface-2)}
@@ -403,7 +407,6 @@ hr.sep{border:0;border-top:1px solid var(--line);margin:24px 0}
     <div class="sub-tools">
       <button class="chip" id="expandAll">본문 모두 펼치기</button>
       <button class="chip" id="collapseTiers">별점 칸 모두 접기</button>
-      <button class="chip" id="sortUpdated">최근 수정순</button>
     </div>
     <div id="list"></div>
   </section>
@@ -552,7 +555,7 @@ const starsHTML = (r, label = true) =>
 const CHEV = `<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9l6 6 6-6"/></svg>`;
 const TRI = `<svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5l10 7-10 7z"/></svg>`;
 
-function toast(msg){ const t = $('#toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove('show'), 2200); }
+function toast(msg){ if (!msg) return; const t = $('#toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove('show'), 2200); }
 
 /* ---------- 화면 설정 (기기별) ---------- */
 const FONTS = {
@@ -604,36 +607,32 @@ applySettings();
 /* ---------- 화면 상태 ---------- */
 let reviews = [];
 const ui = {
-  sortKey: lsGet('rv-sortKey', 'date'),
+  sortKey: ['title','avg','date','manual'].includes(lsGet('rv-sortKey', 'date')) ? lsGet('rv-sortKey', 'date') : 'date',
   sortDir: lsGet('rv-sortDir', 'desc'),
   search: '',
   collapsed: lsGet('rv-collapsed', {}),
   open: new Set()
 };
 
-// 원래 순서(가져온 텍스트 순서·작성 순서): 먼저 들어온 게 위로
-const byOrder = (a, b) => (b.createdAt || 0) - (a.createdAt || 0);
+// 순서 번호: 가져온 예전 리뷰(imp-001…)는 구글 문서에 적힌 순서, 새 리뷰는 쓴 순서
+const seqOf = r => { const m = /^imp-(\d+)$/.exec(r.id || ''); return m ? +m[1] : (r.createdAt || 0); };
+// 직접 정한 순서(꾹 눌러 옮긴 순서). 안 옮긴 리뷰는 원래 순서 번호를 그대로 써요
+const orderOf = r => (typeof r.order === 'number' ? r.order : seqOf(r));
 function cmp(a, b){
-  if (ui.sortKey === 'updated') {
-    // 최근 수정순: 수정 시각이 같으면 원래 순서대로
-    return (b.updatedAt || 0) - (a.updatedAt || 0) || byOrder(a, b);
-  }
+  if (ui.sortKey === 'manual') return orderOf(a) - orderOf(b);
   if (ui.sortKey === 'avg') {
     const x = avgOf(a.scores), y = avgOf(b.scores);
-    if (x == null && y == null) return byOrder(a, b);
+    if (x == null && y == null) return seqOf(a) - seqOf(b);
     if (x == null) return 1;          // 평균 없는 건 항상 아래로
     if (y == null) return -1;
     return ui.sortDir === 'asc' ? x - y : y - x;
   }
-  if (ui.sortKey === 'title') {
-    const v = (a.title || '').localeCompare(b.title || '', 'ko');
-    return ui.sortDir === 'asc' ? v : -v;
+  let v;
+  if (ui.sortKey === 'title') v = (a.title || '').localeCompare(b.title || '', 'ko');
+  else {
+    // 날짜 없는 리뷰는 가장 오래된 것으로 보고 문서 순서대로 → 날짜 ↑ 이면 문서에 적힌 순서 그대로
+    v = (a.date ? 1 : 0) - (b.date ? 1 : 0) || (a.date || '').localeCompare(b.date || '') || seqOf(a) - seqOf(b);
   }
-  // 날짜순: 날짜 없는 리뷰는 항상 아래, 그 안에서는 원래 순서대로
-  if (!a.date && !b.date) return byOrder(a, b);
-  if (!a.date) return 1;
-  if (!b.date) return -1;
-  const v = a.date.localeCompare(b.date) || (a.createdAt || 0) - (b.createdAt || 0);
   return ui.sortDir === 'asc' ? v : -v;
 }
 const th = (k, label, cls = '') => `<th class="sortable ${cls}${ui.sortKey === k ? ' sorted' : ''}" data-sort="${k}">${label} <span class="arrow">${ui.sortKey === k ? (ui.sortDir === 'asc' ? '↑' : '↓') : ''}</span></th>`;
@@ -722,7 +721,6 @@ function scoreChips(r){
 }
 
 function render(){
-  $('#sortUpdated').classList.toggle('on', ui.sortKey === 'updated');
   renderStats();
   const q = ui.search.trim().toLowerCase();
   const list = q ? reviews.filter(r => (r.title || '').toLowerCase().includes(q) || (r.content || '').toLowerCase().includes(q)) : reviews;
@@ -770,11 +768,15 @@ function render(){
 
 /* 목록 클릭 처리 */
 $('#list').addEventListener('click', e => {
+  if (drag.justDropped) { drag.justDropped = false; return; }
   const h = e.target.closest('[data-sort]');
   if (h) {
     const k = h.dataset.sort;
-    if (ui.sortKey === k) ui.sortDir = ui.sortDir === 'asc' ? 'desc' : 'asc';
-    else { ui.sortKey = k; ui.sortDir = k === 'title' ? 'asc' : 'desc'; }
+    const first = k === 'title' ? 'asc' : 'desc';
+    if (ui.sortKey !== k) { ui.sortKey = k; ui.sortDir = first; }
+    else if (ui.sortDir === first) ui.sortDir = first === 'asc' ? 'desc' : 'asc';
+    else ui.sortKey = 'manual';   // 세 번째 누르면 정렬 해제 → 직접 정한 순서
+    toast(ui.sortKey === 'manual' ? '정렬 해제: 직접 정한 순서로 보여요' : '');
     lsSet('rv-sortKey', ui.sortKey); lsSet('rv-sortDir', ui.sortDir);
     render(); return;
   }
@@ -808,10 +810,6 @@ $('#expandAll').onclick = () => {
   $('#expandAll').textContent = allOpen ? '본문 모두 펼치기' : '본문 모두 접기';
   render();
 };
-$('#sortUpdated').onclick = () => {
-  ui.sortKey = ui.sortKey === 'updated' ? 'date' : 'updated'; ui.sortDir = 'desc';
-  lsSet('rv-sortKey', ui.sortKey); lsSet('rv-sortDir', ui.sortDir); render();
-};
 $('#collapseTiers').onclick = () => {
   const anyOpen = TIERS.some(t => !ui.collapsed[t]);
   TIERS.forEach(t => ui.collapsed[t] = anyOpen);
@@ -819,6 +817,82 @@ $('#collapseTiers').onclick = () => {
   $('#collapseTiers').textContent = anyOpen ? '별점 칸 모두 펼치기' : '별점 칸 모두 접기';
   render();
 };
+
+/* ---------- 꾹 눌러서 순서 옮기기 ---------- */
+const drag = { timer: null, row: null, startY: 0, startX: 0, active: false, justDropped: false };
+function dragCancelTimer(){ clearTimeout(drag.timer); drag.timer = null; }
+function dragStart(row){
+  if (ui.search.trim()) { toast('검색 중에는 순서를 바꿀 수 없어요'); return; }
+  drag.active = true; drag.row = row;
+  // 펼쳐진 본문은 잠깐 접기
+  const id = row.dataset.id;
+  if (ui.open.has(id)) { ui.open.delete(id); row.classList.remove('open'); row.nextElementSibling.hidden = true; }
+  row.classList.add('dragging'); document.body.classList.add('drag-on');
+  try { navigator.vibrate && navigator.vibrate(15); } catch {}
+}
+function dragMove(clientX, clientY){
+  const row = drag.row, tbody = row.parentElement;
+  const rows = [...tbody.querySelectorAll('tr.row')];
+  for (const r of rows) {
+    if (r === row) continue;
+    const b = r.getBoundingClientRect();
+    if (clientY > b.top && clientY < b.bottom) {
+      const after = clientY > b.top + b.height / 2;
+      const det = row.nextElementSibling;
+      if (after) { r.nextElementSibling.after(row); row.after(det); }
+      else { r.before(row); row.after(det); }
+      break;
+    }
+  }
+  // 화면 끝에 가까우면 자동 스크롤
+  if (clientY < 70) scrollBy(0, -12); else if (clientY > innerHeight - 70) scrollBy(0, 12);
+}
+async function dragEnd(){
+  const row = drag.row; drag.active = false; drag.row = null;
+  row.classList.remove('dragging'); document.body.classList.remove('drag-on');
+  drag.justDropped = true; setTimeout(() => drag.justDropped = false, 400);
+  const ids = [...row.parentElement.querySelectorAll('tr.row')].map(r => r.dataset.id);
+  const byId = Object.fromEntries(reviews.map(r => [r.id, r]));
+  const changes = [];
+  if (ui.sortKey !== 'manual') {
+    // 정렬된 상태에서 옮기면: 이 별점 칸을 지금 보이는 순서로 고정하고 '정렬 해제'로 전환
+    ids.forEach((id, i) => { const r = byId[id]; if (r.order !== i + 1) changes.push({ ...r, order: i + 1 }); });
+    ui.sortKey = 'manual'; lsSet('rv-sortKey', 'manual');
+  } else {
+    const i = ids.indexOf(row.dataset.id);
+    const prev = i > 0 ? orderOf(byId[ids[i - 1]]) : null, next = i < ids.length - 1 ? orderOf(byId[ids[i + 1]]) : null;
+    const cur = orderOf(byId[row.dataset.id]);
+    if ((prev == null || prev < cur) && (next == null || cur < next)) return;   // 제자리
+    const val = prev == null ? next - 1 : next == null ? prev + 1 : (prev + next) / 2;
+    changes.push({ ...byId[row.dataset.id], order: val });
+  }
+  if (!changes.length) return;
+  try {
+    for (const r of changes) await store.save(r);
+    toast('순서를 바꿨어요');
+  } catch (err) { console.error(err); toast('순서 저장에 실패했어요'); render(); }
+}
+const list = $('#list');
+list.addEventListener('pointerdown', e => {
+  const row = e.target.closest('tr.row');
+  if (!row || e.button > 0) return;
+  drag.startX = e.clientX; drag.startY = e.clientY;
+  dragCancelTimer();
+  drag.timer = setTimeout(() => { drag.timer = null; dragStart(row); }, 450);
+});
+list.addEventListener('pointermove', e => {
+  if (drag.timer && (Math.abs(e.clientX - drag.startX) > 8 || Math.abs(e.clientY - drag.startY) > 8)) dragCancelTimer();
+  if (drag.active && e.pointerType === 'mouse') { e.preventDefault(); dragMove(e.clientX, e.clientY); }
+});
+// 터치: 꾹 누른 뒤에는 화면이 스크롤되지 않게
+list.addEventListener('touchmove', e => {
+  if (drag.active) { e.preventDefault(); const t = e.touches[0]; dragMove(t.clientX, t.clientY); }
+}, { passive: false });
+const endDrag = () => { dragCancelTimer(); if (drag.active) dragEnd(); };
+window.addEventListener('pointerup', endDrag);
+window.addEventListener('touchend', endDrag);
+window.addEventListener('pointercancel', e => { if (e.pointerType !== 'touch') endDrag(); else dragCancelTimer(); });
+list.addEventListener('contextmenu', e => { if (e.target.closest('tr.row')) e.preventDefault(); });
 
 /* ---------- 별점 선택기 ---------- */
 let pickRating = 0;
@@ -924,7 +998,8 @@ $('#editForm').addEventListener('submit', async e => {
     id: editing?.id || uid(),
     title, date: $('#fDate').value || today(), rating: pickRating,
     scores, content: $('#fContent').value,
-    createdAt: editing?.createdAt || now, updatedAt: now
+    createdAt: editing?.createdAt || now, updatedAt: now,
+    ...(typeof editing?.order === 'number' ? { order: editing.order } : {})
   };
   $('#saveBtn').disabled = true;
   try {
