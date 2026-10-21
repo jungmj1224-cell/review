@@ -407,6 +407,7 @@ hr.sep{border:0;border-top:1px solid var(--line);margin:24px 0}
     <div class="sub-tools">
       <button class="chip" id="expandAll">본문 모두 펼치기</button>
       <button class="chip" id="collapseTiers">별점 칸 모두 접기</button>
+      <button class="chip" id="manualSort">원래 순서</button>
     </div>
     <div id="list"></div>
   </section>
@@ -618,6 +619,18 @@ const ui = {
 const seqOf = r => { const m = /^imp-(\d+)$/.exec(r.id || ''); return m ? +m[1] : (r.createdAt || 0); };
 // 직접 정한 순서(꾹 눌러 옮긴 순서). 안 옮긴 리뷰는 원래 순서 번호를 그대로 써요
 const orderOf = r => (typeof r.order === 'number' ? r.order : seqOf(r));
+// 같은 별점 칸 안에서 날짜에 맞는 자리 찾기 (날짜 없는 리뷰는 가장 오래된 것으로 봐요)
+function placeByDate(r){
+  const list = reviews.filter(x => x.id !== r.id && Number(x.rating) === Number(r.rating)).sort((a, b) => orderOf(a) - orderOf(b));
+  const before = x => !x.date ? (r.date ? true : seqOf(x) < seqOf(r)) : (r.date ? x.date <= r.date : false);
+  let k = -1;
+  list.forEach((x, i) => { if (before(x)) k = i; });
+  const prev = k >= 0 ? orderOf(list[k]) : null, next = k + 1 < list.length ? orderOf(list[k + 1]) : null;
+  if (prev == null && next == null) return seqOf(r);
+  if (prev == null) return next - 1;
+  if (next == null) return prev + 1;
+  return (prev + next) / 2;
+}
 function cmp(a, b){
   if (ui.sortKey === 'manual') return orderOf(a) - orderOf(b);
   if (ui.sortKey === 'avg') {
@@ -721,6 +734,7 @@ function scoreChips(r){
 }
 
 function render(){
+  $('#manualSort').classList.toggle('on', ui.sortKey === 'manual');
   renderStats();
   const q = ui.search.trim().toLowerCase();
   const list = q ? reviews.filter(r => (r.title || '').toLowerCase().includes(q) || (r.content || '').toLowerCase().includes(q)) : reviews;
@@ -809,6 +823,10 @@ $('#expandAll').onclick = () => {
   if (!allOpen) { ui.collapsed = {}; lsSet('rv-collapsed', ui.collapsed); }
   $('#expandAll').textContent = allOpen ? '본문 모두 펼치기' : '본문 모두 접기';
   render();
+};
+$('#manualSort').onclick = () => {
+  if (ui.sortKey === 'manual') return;
+  ui.sortKey = 'manual'; lsSet('rv-sortKey', 'manual'); render(); toast('원래 순서로 돌아왔어요');
 };
 $('#collapseTiers').onclick = () => {
   const anyOpen = TIERS.some(t => !ui.collapsed[t]);
@@ -959,7 +977,7 @@ function updateAvgLive(){
 scoreKeys.forEach(k => $('#sc-' + k).addEventListener('input', updateAvgLive));
 
 /* ---------- 작성/수정 ---------- */
-const showDate = () => { $('#fDateText').textContent = fmtDate($('#fDate').value) || '날짜 선택'; };
+const showDate = () => { $('#fDateText').textContent = fmtDate($('#fDate').value) || '날짜 없음'; };
 $('#fDate').addEventListener('input', showDate);
 $('#fDate').addEventListener('change', showDate);
 $('#fDate').addEventListener('click', e => { try { e.target.showPicker(); } catch {} });
@@ -968,7 +986,7 @@ function openEditor(r){
   editing = r || null;
   $('#editTitle').textContent = r ? '리뷰 수정' : '새 리뷰';
   $('#fTitle').value = r?.title || '';
-  $('#fDate').value = r?.date || today(); showDate();
+  $('#fDate').value = r ? (r.date || '') : today(); showDate();   // 날짜 없던 리뷰는 수정해도 날짜 없이
   $('#fContent').value = r?.content || '';
   scoreKeys.forEach(k => { const v = r?.scores?.[k]; $('#sc-' + k).value = isNum(v) ? String(v) : ''; });
   updateAvgLive();
@@ -996,11 +1014,13 @@ $('#editForm').addEventListener('submit', async e => {
   const now = Date.now();
   const r = {
     id: editing?.id || uid(),
-    title, date: $('#fDate').value || today(), rating: pickRating,
+    title, date: $('#fDate').value || (editing ? '' : today()), rating: pickRating,
     scores, content: $('#fContent').value,
     createdAt: editing?.createdAt || now, updatedAt: now,
     ...(typeof editing?.order === 'number' ? { order: editing.order } : {})
   };
+  // 새 리뷰이거나 별점·날짜가 바뀌면, '원래 순서'에서 날짜에 맞는 자리로 끼워 넣기
+  if (!editing || editing.rating !== r.rating || (editing.date || '') !== (r.date || '')) r.order = placeByDate(r);
   $('#saveBtn').disabled = true;
   try {
     await store.save(r);
