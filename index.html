@@ -133,7 +133,7 @@ tr.row.flash td{animation:flash 1.4s ease}
 .tier{box-shadow:var(--shadow);background:var(--surface);border:1px solid var(--line);border-radius:var(--r);margin-bottom:10px;overflow:hidden}
 .tier-head{width:100%;display:flex;align-items:center;gap:14px;padding:14px 18px;border:0;background:transparent;text-align:left}
 .tier-num{font-family:var(--ff-head);font-size:20px;font-weight:800;letter-spacing:-.02em;min-width:38px;line-height:1}
-.tier-head .stars{font-size:15px}
+.tier-head .stars{font-size:17px}
 .tier-count{margin-left:auto;font-size:12px;color:var(--ink-2);background:var(--surface-2);border:1px solid var(--line);padding:3px 10px;border-radius:var(--r-sm)}
 .chev{width:16px;height:16px;flex:none;transition:transform .18s;color:var(--ink-3)}
 .tier.collapsed .chev{transform:rotate(-90deg)}
@@ -536,8 +536,9 @@ const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
 const fmtN = n => n == null ? '–' : String(Math.round(n * 100) / 100);
 const isNum = v => typeof v === 'number' && !isNaN(v);
 function avgOf(sc){
-  const v = SUBS.map(([k]) => sc?.[k]).filter(isNum);
-  return v.length ? v.reduce((a, b) => a + b, 0) / v.length : null;
+  // 네 항목을 다 채웠을 때만 평균을 내요
+  const v = SUBS.map(([k]) => sc?.[k]);
+  return v.every(isNum) ? v.reduce((a, b) => a + b, 0) / v.length : null;
 }
 const starsHTML = (r, label = true) =>
   `<span class="stars"${label ? ` aria-label="별점 ${r}"` : ''}><span class="stars-bg">★★★★★</span><span class="stars-fg" style="width:${r/5*100}%">★★★★★</span></span>`;
@@ -720,7 +721,7 @@ function render(){
     if (!rows.length) return '';  // 리뷰 없는 별점은 안 보이게
     const collapsed = !!ui.collapsed[t];
     if (!rows.length) {
-      return `<section class="tier empty"><div class="tier-head">${CHEV}<span class="tier-num num">${t.toFixed(1)}</span>${starsHTML(t)}<span class="tier-count">비어 있음</span></div></section>`;
+      return `<section class="tier empty"><div class="tier-head">${CHEV}${starsHTML(t)}<span class="tier-count">비어 있음</span></div></section>`;
     }
     const body = rows.map(r => {
       const open = ui.open.has(r.id);
@@ -739,7 +740,7 @@ function render(){
         </div></div></td></tr>`;
     }).join('');
     return `<section class="tier${collapsed ? ' collapsed' : ''}" data-tier="${t}">
-      <button class="tier-head" data-tierhead="${t}" aria-expanded="${!collapsed}">${CHEV}<span class="tier-num num">${t.toFixed(1)}</span>${starsHTML(t)}<span class="tier-count num">${rows.length}편</span></button>
+      <button class="tier-head" data-tierhead="${t}" aria-expanded="${!collapsed}">${CHEV}${starsHTML(t)}<span class="tier-count num">${rows.length}편</span></button>
       <div class="tier-body"><table class="rt">
         <thead><tr><th class="c-tog"></th>${th('title', '제목')}${th('avg', '평균', 'c-avg')}${th('date', '날짜', 'c-date')}</tr></thead>
         <tbody>${body}</tbody></table></div>
