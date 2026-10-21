@@ -5,6 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#f3ede2">
 <title>독서 리뷰</title>
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="독서 리뷰">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -397,6 +403,7 @@ hr.sep{border:0;border-top:1px solid var(--line);margin:24px 0}
     <div class="sub-tools">
       <button class="chip" id="expandAll">본문 모두 펼치기</button>
       <button class="chip" id="collapseTiers">별점 칸 모두 접기</button>
+      <button class="chip" id="sortUpdated">최근 수정순</button>
     </div>
     <div id="list"></div>
   </section>
@@ -604,17 +611,29 @@ const ui = {
   open: new Set()
 };
 
+// 원래 순서(가져온 텍스트 순서·작성 순서): 먼저 들어온 게 위로
+const byOrder = (a, b) => (b.createdAt || 0) - (a.createdAt || 0);
 function cmp(a, b){
+  if (ui.sortKey === 'updated') {
+    // 최근 수정순: 수정 시각이 같으면 원래 순서대로
+    return (b.updatedAt || 0) - (a.updatedAt || 0) || byOrder(a, b);
+  }
   if (ui.sortKey === 'avg') {
     const x = avgOf(a.scores), y = avgOf(b.scores);
-    if (x == null && y == null) return 0;
+    if (x == null && y == null) return byOrder(a, b);
     if (x == null) return 1;          // 평균 없는 건 항상 아래로
     if (y == null) return -1;
     return ui.sortDir === 'asc' ? x - y : y - x;
   }
-  let v;
-  if (ui.sortKey === 'title') v = (a.title || '').localeCompare(b.title || '', 'ko');
-  else v = (a.date || '').localeCompare(b.date || '') || (a.createdAt || 0) - (b.createdAt || 0);
+  if (ui.sortKey === 'title') {
+    const v = (a.title || '').localeCompare(b.title || '', 'ko');
+    return ui.sortDir === 'asc' ? v : -v;
+  }
+  // 날짜순: 날짜 없는 리뷰는 항상 아래, 그 안에서는 원래 순서대로
+  if (!a.date && !b.date) return byOrder(a, b);
+  if (!a.date) return 1;
+  if (!b.date) return -1;
+  const v = a.date.localeCompare(b.date) || (a.createdAt || 0) - (b.createdAt || 0);
   return ui.sortDir === 'asc' ? v : -v;
 }
 const th = (k, label, cls = '') => `<th class="sortable ${cls}${ui.sortKey === k ? ' sorted' : ''}" data-sort="${k}">${label} <span class="arrow">${ui.sortKey === k ? (ui.sortDir === 'asc' ? '↑' : '↓') : ''}</span></th>`;
@@ -703,6 +722,7 @@ function scoreChips(r){
 }
 
 function render(){
+  $('#sortUpdated').classList.toggle('on', ui.sortKey === 'updated');
   renderStats();
   const q = ui.search.trim().toLowerCase();
   const list = q ? reviews.filter(r => (r.title || '').toLowerCase().includes(q) || (r.content || '').toLowerCase().includes(q)) : reviews;
@@ -787,6 +807,10 @@ $('#expandAll').onclick = () => {
   if (!allOpen) { ui.collapsed = {}; lsSet('rv-collapsed', ui.collapsed); }
   $('#expandAll').textContent = allOpen ? '본문 모두 펼치기' : '본문 모두 접기';
   render();
+};
+$('#sortUpdated').onclick = () => {
+  ui.sortKey = ui.sortKey === 'updated' ? 'date' : 'updated'; ui.sortDir = 'desc';
+  lsSet('rv-sortKey', ui.sortKey); lsSet('rv-sortDir', ui.sortDir); render();
 };
 $('#collapseTiers').onclick = () => {
   const anyOpen = TIERS.some(t => !ui.collapsed[t]);
