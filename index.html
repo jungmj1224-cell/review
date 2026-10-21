@@ -1,0 +1,1020 @@
+<!doctype html>
+<html lang="ko" data-design="paper">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#f3ede2">
+<title>독서 리뷰</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang&family=Noto+Serif+KR:wght@200;300;400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --fs-body:11px; --fs-table:15px; --lh-body:1.8;
+  --ff-ui:'Pretendard',-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+  --ff-body:var(--ff-ui); --ff-head:var(--ff-ui);
+  --r:4px; --r-md:4px; --r-sm:3px;
+  --shadow:none;
+}
+/* 1. 모던 다크 */
+:root[data-design="dark"]{
+  --bg:#0f0f12; --surface:#17171c; --surface-2:#1e1e25; --elev:#26262e;
+  --ink:#f2f2f5; --ink-2:#a3a3ae; --ink-3:#6d6d78; --line:#2a2a33; --line-2:#34343e;
+  --accent:#f5b83d; --accent-soft:rgba(245,184,61,.14); --accent-ink:#1a1408;
+  --star:#f5b83d; --star-empty:#34343e; --danger:#ff6b6b; color-scheme:dark;
+}
+/* 4. 미니멀 화이트 */
+:root[data-design="minimal"]{
+  --bg:#ffffff; --surface:#ffffff; --surface-2:#f6f6f6; --elev:#efefef;
+  --ink:#111111; --ink-2:#555555; --ink-3:#9a9a9a; --line:#e7e7e7; --line-2:#cfcfcf;
+  --accent:#111111; --accent-soft:rgba(0,0,0,.06); --accent-ink:#ffffff;
+  --star:#111111; --star-empty:#dddddd; --danger:#d33a3a; color-scheme:light;
+}
+/* 5. 감성 서재 */
+:root[data-design="paper"]{
+  --bg:#f3ede2; --surface:#fbf8f2; --surface-2:#f1eadd; --elev:#e9e0cf;
+  --ink:#2e2620; --ink-2:#6f6255; --ink-3:#a29482; --line:#e2d8c6; --line-2:#d3c6af;
+  --accent:#9a5b34; --accent-soft:rgba(154,91,52,.11); --accent-ink:#ffffff;
+  --star:#d39a3a; --star-empty:#e0d5c2; --danger:#b8423b; color-scheme:light;
+  --ff-head:'Noto Serif KR','AppleMyungjo',serif;
+  --shadow:0 1px 2px rgba(80,50,20,.05),0 8px 24px rgba(80,50,20,.06);
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--ff-ui);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
+button,input,textarea,select{font:inherit;color:inherit}
+button{cursor:pointer}
+[hidden]{display:none!important}
+.num{font-variant-numeric:tabular-nums}
+
+.wrap{max-width:960px;margin:0 auto;padding:0 16px}
+
+/* top bar */
+header.top{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--bg) 82%,transparent);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+header.top .wrap{display:flex;align-items:center;gap:8px;height:60px}
+.brand{font-family:var(--ff-head);display:flex;align-items:center;gap:10px;margin-right:auto;font-weight:700;font-size:17px;letter-spacing:-.02em}
+.logo{width:28px;height:28px;border-radius:var(--r-sm);background:var(--accent);display:grid;place-items:center;color:var(--accent-ink)}
+.icon-btn{height:36px;min-width:36px;padding:0 10px;border:1px solid var(--line);background:var(--surface);border-radius:var(--r-sm);display:inline-flex;align-items:center;justify-content:center;gap:4px;font-size:14px;color:var(--ink-2)}
+.icon-btn:hover{color:var(--ink);border-color:var(--line-2)}
+.fs-group{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:var(--r-sm);background:var(--surface);height:36px}
+.fs-group button{border:0;background:transparent;height:100%;padding:0 10px;font-size:13px;font-weight:600;color:var(--ink-2)}
+.fs-group button:hover{color:var(--ink)}
+.fs-group span{font-size:12px;color:var(--ink-3);min-width:22px;text-align:center}
+
+.banner{margin:16px 0 0;padding:10px 14px;border-radius:var(--r-md);background:var(--accent-soft);color:var(--ink-2);font-size:13px;border:1px solid color-mix(in srgb,var(--accent) 25%,transparent)}
+
+/* stats */
+.overview{display:grid;grid-template-columns:1fr 190px;gap:10px;margin:22px 0 0;align-items:start}
+.stats{display:grid;grid-template-columns:1fr;gap:10px}
+.cal{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);padding:12px 14px 14px;position:relative}
+.cal-head{display:flex;align-items:center;gap:4px}
+.cal-title{border:0;background:none;font-family:var(--ff-head);font-weight:700;font-size:17px;padding:4px 6px;letter-spacing:-.01em}
+.cal-nav{width:30px;height:30px;border-radius:var(--r-sm);border:1px solid var(--line);background:transparent;color:var(--ink-2);font-size:17px;line-height:1}
+.cal-nav:hover,.cal-today:hover,.cal-fold:hover{color:var(--ink);border-color:var(--line-2)}
+.cal-today{margin-left:auto;height:30px;padding:0 10px;border-radius:var(--r-sm);border:1px solid var(--line);background:transparent;color:var(--ink-2);font-size:12.5px}
+.cal-fold{height:30px;padding:0 10px;border-radius:var(--r-sm);border:1px solid var(--line);background:transparent;color:var(--ink-2);font-size:12.5px}
+.cal.folded .cal-body{display:none}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.cal-dow{margin:10px 0 4px}
+.cal-dow span{text-align:center;font-size:11.5px;color:var(--ink-3)}
+.cal-dow span:first-child{color:var(--danger)}
+.cd{min-height:64px;border-radius:var(--r-sm);padding:5px 6px;border:1px solid transparent;background:transparent;text-align:left;display:flex;flex-direction:column;gap:2px;overflow:hidden;cursor:default}
+.cd .n{font-size:12px;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.cd.sun .n{color:var(--danger)}
+.cd.out{visibility:hidden}
+.cd.today .n{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:2px;background:var(--ink);color:var(--bg);margin:-2px 0 0 -3px}
+.cd.has{background:var(--accent-soft);cursor:pointer}
+.cd.has:hover{border-color:color-mix(in srgb,var(--accent) 45%,transparent)}
+.cd.sel{border-color:var(--accent)}
+.cd .bk{font-size:11px;line-height:1.3;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500}
+.cd .more{font-size:10.5px;color:var(--accent);font-weight:700}
+.cd .dots{display:none;gap:2px}
+.cd .dots i{width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.cal-pop{margin-top:10px;border-top:1px solid var(--line);padding-top:10px}
+.cal-pop .ph{font-size:10.5px;color:var(--ink-3);margin-bottom:4px;padding-left:8px}
+.cal-pop button{display:flex;width:100%;align-items:center;gap:8px;border:0;background:transparent;border-radius:var(--r-sm);padding:5px 8px;text-align:left}
+.cal-pop button:hover{background:var(--surface-2)}
+.cal-pop button b{font-weight:500;font-size:12px;flex:1}
+.cal-pop .stars{font-size:10px}
+.cal-pop .go{font-size:11px;color:var(--accent)}
+tr.row.flash td{animation:flash 1.4s ease}
+@keyframes flash{0%,40%{background:var(--accent-soft)}}
+.stat{box-shadow:var(--shadow);background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px}
+.stat .k{font-size:12px;color:var(--ink-3);margin-bottom:4px}
+.stat .v{font-family:var(--ff-head);font-size:22px;font-weight:700;letter-spacing:-.02em;display:flex;align-items:baseline;line-height:1}
+.stat .v small{font-size:13px;font-weight:500;color:var(--ink-3);margin-left:2px;line-height:1;font-family:var(--ff-ui);position:relative;top:-2px}
+
+/* toolbar */
+.toolbar{display:flex;gap:8px;align-items:center;margin:16px 0 10px}
+.search-box{flex:1;position:relative}
+.search-box svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--ink-3);pointer-events:none}
+.search{width:100%;height:44px;border:1px solid var(--line);background:var(--surface);border-radius:var(--r-md);padding:0 14px 0 40px}
+.search::placeholder,.field input::placeholder,.field textarea::placeholder{color:var(--ink-3)}
+.search:focus,.field input:focus,.field textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.btn{height:44px;padding:0 18px;border-radius:var(--r-md);border:1px solid var(--line);background:var(--surface);font-weight:600;font-size:14px;white-space:nowrap}
+.btn:hover{border-color:var(--line-2);background:var(--surface-2)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn.danger{color:var(--danger)}
+.btn.sm{height:32px;padding:0 12px;border-radius:var(--r-sm);font-size:13px}
+.btn:disabled{opacity:.5;cursor:default}
+.sub-tools{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:18px}
+.chip{height:30px;padding:0 12px;border-radius:var(--r-sm);border:1px solid var(--line);background:transparent;color:var(--ink-2);font-size:12.5px;display:inline-flex;align-items:center;gap:6px}
+.chip:hover{color:var(--ink);border-color:var(--line-2)}
+.chip.on{background:var(--accent-soft);border-color:color-mix(in srgb,var(--accent) 40%,transparent);color:var(--accent)}
+
+/* stars */
+.stars{position:relative;display:inline-block;white-space:nowrap;letter-spacing:0;line-height:1}
+.stars-bg{color:var(--star-empty)}
+.stars-fg{position:absolute;left:0;top:0;overflow:hidden;color:var(--star)}
+
+/* tiers */
+.tier{box-shadow:var(--shadow);background:var(--surface);border:1px solid var(--line);border-radius:var(--r);margin-bottom:10px;overflow:hidden}
+.tier-head{width:100%;display:flex;align-items:center;gap:14px;padding:14px 18px;border:0;background:transparent;text-align:left}
+.tier-num{font-family:var(--ff-head);font-size:20px;font-weight:800;letter-spacing:-.02em;min-width:38px;line-height:1}
+.tier-head .stars{font-size:15px}
+.tier-count{margin-left:auto;font-size:12px;color:var(--ink-2);background:var(--surface-2);border:1px solid var(--line);padding:3px 10px;border-radius:var(--r-sm)}
+.chev{width:16px;height:16px;flex:none;transition:transform .18s;color:var(--ink-3)}
+.tier.collapsed .chev{transform:rotate(-90deg)}
+.tier.collapsed .tier-body{display:none}
+.tier.empty{background:transparent;border-style:dashed;box-shadow:none}
+.tier.empty .tier-head{padding-top:9px;padding-bottom:9px;cursor:default}
+.tier.empty .tier-num{font-family:var(--ff-head);font-size:16px;color:var(--ink-3);font-weight:700}
+.tier.empty .stars{font-size:12px;opacity:.5}
+.tier.empty .tier-count{background:transparent;border-color:transparent;color:var(--ink-3)}
+.tier.empty .chev{visibility:hidden}
+
+table.rt{width:100%;border-collapse:collapse;font-size:var(--fs-table)}
+.rt th{text-align:left;font-weight:600;font-size:.78em;color:var(--ink-3);padding:8px 12px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);user-select:none;letter-spacing:.02em}
+.rt th.sortable{cursor:pointer}
+.rt th.sortable:hover{color:var(--ink)}
+.rt th.sorted{color:var(--accent)}
+.rt th .arrow{display:inline-block;width:1em;font-size:.85em}
+.rt .c-tog{width:36px;padding-left:12px;padding-right:0}
+.rt tr.row td.c-tog+td,.rt th.c-tog+th{padding-left:2px}
+.rt .c-avg{width:64px;text-align:center;padding-left:4px;padding-right:4px}
+.rt tr.row td.c-avg,.rt tr.row td.c-date{vertical-align:middle;line-height:20px}
+.avg-pill{vertical-align:middle}
+.rt tr.row td.c-date span{vertical-align:middle}
+.rt .c-date{width:96px;white-space:nowrap;text-align:right;padding-right:18px}
+.rt tr.row td{padding:12px 12px;border-bottom:1px solid var(--line);cursor:pointer;transition:background .12s}
+.rt tr.row td.c-date{padding-right:18px}
+.rt tr.row:hover td{background:var(--surface-2)}
+.rt tr.row td.c-date{color:var(--ink-3);font-size:11px}
+.rt tr.row .ttl{font-weight:500;font-size:12px;line-height:18px;display:inline-block;vertical-align:middle}
+.row-sc{display:inline-flex;flex-wrap:wrap;align-items:center;gap:3px;margin-left:8px;vertical-align:middle}
+.row-sc span{font-size:10px;line-height:1.5;color:var(--ink-3);background:var(--surface-2);border:1px solid var(--line);border-radius:2px;padding:0 4px;white-space:nowrap}
+.row-sc b{color:var(--ink-2);font-weight:700;margin-left:2px}
+.row-sc .rd{background:transparent}
+.rt tbody tr:last-child td{border-bottom:0}
+.avg-pill{display:inline-block;min-width:34px;text-align:center;padding:1px 4px;border-radius:var(--r-sm);background:var(--accent-soft);color:var(--accent);font-weight:700;font-size:10px;line-height:1.5}
+.avg-pill.none{background:transparent;color:var(--ink-3);font-weight:400}
+.tog{width:26px;height:26px;border-radius:var(--r-sm);border:0;background:transparent;display:grid;place-items:center;color:var(--ink-3)}
+.tog svg{transition:transform .18s}
+tr.row.open .tog svg{transform:rotate(90deg);color:var(--accent)}
+tr.row.open td{border-bottom-color:transparent}
+tr.detail td{padding:0;border-bottom:1px solid var(--line)}
+.detail-inner{padding:10px 36px 18px}
+.detail-box{border:1px solid var(--line-2);background:var(--bg);border-radius:var(--r);padding:16px 18px}
+.score-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px}
+.sc{display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border-radius:var(--r-sm);background:var(--elev);font-size:12.5px;color:var(--ink-2)}
+.sc b{color:var(--ink);font-weight:700}
+.sc.avg{background:var(--accent-soft);color:var(--accent)}
+.sc.avg b{color:var(--accent)}
+.sc.ridi{background:transparent;border:1px solid var(--line-2)}
+.content{font-weight:var(--fw-body,300);font-family:var(--ff-body);font-size:var(--fs-body);line-height:var(--lh-body);white-space:pre-wrap;word-break:keep-all;overflow-wrap:anywhere;color:var(--ink)}
+.content.none{color:var(--ink-3);font-style:italic}
+.detail-meta{display:flex;align-items:center;gap:8px;margin-top:18px;font-size:12px;color:var(--ink-3);flex-wrap:wrap}
+.detail-meta .sp{margin-left:auto;display:flex;gap:6px}
+
+.empty-all{text-align:center;padding:70px 20px;color:var(--ink-2);border:1px dashed var(--line-2);border-radius:var(--r)}
+.empty-all .big{font-family:var(--ff-head);font-size:18px;font-weight:700;color:var(--ink);margin-bottom:6px}
+
+/* login */
+.login{max-width:400px;margin:14vh auto 0;text-align:center;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:40px 28px}
+.login .logo{width:48px;height:48px;border-radius:var(--r);margin:0 auto 16px}
+.login h1{font-family:var(--ff-head);font-size:24px;margin:0 0 8px;letter-spacing:-.02em}
+.login p{color:var(--ink-2);margin:0 0 24px}
+
+/* dialogs */
+dialog{border:1px solid var(--line);padding:0;border-radius:6px;background:var(--surface);color:var(--ink);box-shadow:0 30px 80px rgba(0,0,0,.5);width:min(720px,calc(100vw - 24px));max-height:calc(100dvh - 24px)}
+dialog::backdrop{background:rgba(0,0,0,.6);backdrop-filter:blur(3px)}
+.dlg{display:flex;flex-direction:column;max-height:calc(100dvh - 26px)}
+.dlg-head{display:flex;align-items:center;padding:16px 20px 16px 24px;border-bottom:1px solid var(--line)}
+.dlg-head h2{font-family:var(--ff-head);margin:0;font-size:17px;font-weight:700;margin-right:auto;letter-spacing:-.02em}
+.dlg-body{padding:22px 24px;overflow:auto}
+.dlg-foot{display:flex;gap:8px;justify-content:flex-end;padding:14px 24px;border-top:1px solid var(--line)}
+.field{margin-bottom:20px}
+.field>label,.lbl{display:block;font-size:12.5px;font-weight:600;color:var(--ink-2);margin-bottom:8px}
+.field input[type=text],.field input[type=date],.field textarea{width:100%;height:46px;border:1px solid var(--line);background:var(--bg);border-radius:var(--r-md);padding:0 14px}
+.field input[type=date]{height:32px;font-size:13px;padding:0 10px}
+#fTitle{height:32px;font-size:13px;padding:0 10px}
+/* 날짜: 기기 언어와 상관없이 년.월.일로 보이게 */
+.date-wrap{position:relative;height:32px;border:1px solid var(--line);background:var(--bg);border-radius:var(--r-md);display:flex;align-items:center;padding:0 10px;font-size:13px}
+.date-wrap:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.date-text{flex:1}
+.date-ic{color:var(--ink-2)}
+.field .date-wrap input[type=date]{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;border:0;padding:0}
+.field textarea{font-weight:var(--fw-body,300);height:auto;min-height:240px;padding:12px 14px;resize:vertical;font-family:var(--ff-body);font-size:var(--fs-body);line-height:var(--lh-body)}
+.row2{display:grid;grid-template-columns:1fr 150px;gap:12px}
+.guide{font-size:9.5px;color:var(--ink-3);line-height:1.5;margin:-4px 0 6px;word-break:keep-all}
+.panel{background:var(--bg);border:1px solid var(--line);border-radius:var(--r);padding:10px 12px}
+
+.picker{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.picker .stars{font-size:17px;cursor:pointer;touch-action:none;outline:none;border-radius:6px}
+.picker .stars:focus-visible{outline:2px solid var(--accent);outline-offset:4px}
+.picker-val{font-size:12px;font-weight:600;min-width:22px;letter-spacing:-.02em;text-align:left}
+.dd{position:relative}
+.dd-btn{display:inline-flex;align-items:center;gap:2px;height:22px;padding:0 4px 0 7px;border-radius:var(--r-md);border:1px solid var(--line);background:var(--surface);color:var(--ink)}
+.dd-btn svg{color:var(--ink-3);transition:transform .15s}
+.dd-btn:hover{border-color:var(--line-2)}
+.dd-btn[aria-expanded="true"]{border-color:var(--accent)}
+.dd-btn[aria-expanded="true"] svg{transform:rotate(180deg);color:var(--accent)}
+.dd-menu{position:absolute;top:calc(100% + 6px);left:0;z-index:5;width:190px;max-height:232px;overflow-y:auto;background:var(--elev);border:1px solid var(--line-2);border-radius:var(--r-md);padding:5px;box-shadow:0 14px 36px rgba(0,0,0,.45);overscroll-behavior:contain}
+.dd-opt{width:100%;display:flex;align-items:center;gap:12px;height:38px;padding:0 10px;border:0;border-radius:var(--r-sm);background:transparent;color:var(--ink);text-align:left}
+.dd-opt b{min-width:28px;font-variant-numeric:tabular-nums}
+.dd-opt .stars{font-size:13px}
+.dd-opt:hover,.dd-opt:focus-visible{background:var(--surface-2);outline:none}
+.dd-opt.on{background:var(--accent-soft)}
+.dd-opt.on b{color:var(--accent)}
+
+.scores{display:flex;gap:6px;align-items:flex-end;flex-wrap:wrap}
+.score-grid{display:grid;grid-template-columns:repeat(4,max-content);gap:6px}
+.score-in{min-width:64px}
+.score-in label{display:block;font-size:11.5px;color:var(--ink-2);margin-bottom:3px;white-space:nowrap}
+.field .score-in input{width:64px;height:26px;padding:0;text-align:center;font-size:15px;font-weight:700;border:1px solid var(--line);background:var(--surface);border-radius:var(--r-sm);font-variant-numeric:tabular-nums}
+.field .score-in input.bad{border-color:var(--danger)}
+.avg-box{min-width:64px;height:26px;border-radius:var(--r-sm);background:var(--accent-soft);border:1px solid color-mix(in srgb,var(--accent) 30%,transparent);display:flex;align-items:center;justify-content:center;gap:6px;padding:0 10px}
+.avg-box .k{font-size:11.5px;color:var(--accent);font-weight:600}
+.avg-box .v{font-size:15px;font-weight:800;color:var(--accent);line-height:1}
+.ridi-row{display:flex;align-items:center;gap:8px;margin-top:8px;padding-top:8px;border-top:1px solid var(--line)}
+.ridi-row label{font-size:11.5px;color:var(--ink-2);font-weight:600;white-space:nowrap}
+.field .ridi-row input{width:64px;padding:0;flex:none;height:26px;text-align:center;font-size:15px;font-weight:700;border:1px solid var(--line);background:var(--surface);border-radius:var(--r-sm)}
+.ridi-row input.bad{border-color:var(--danger)}
+.ridi-row small{color:var(--ink-3);font-size:11.5px}
+.hint{font-size:12px;color:var(--ink-3);margin-top:10px}
+
+.set-row{display:flex;align-items:center;gap:10px}
+.set-row input[type=range]{flex:1;accent-color:var(--accent)}
+.set-row output{min-width:50px;text-align:right;font-weight:700}
+.set-row .step{width:34px;height:34px;border-radius:var(--r-sm);border:1px solid var(--line);background:var(--bg)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:var(--r-sm);overflow:hidden;background:var(--bg)}
+.seg button{border:0;background:transparent;padding:8px 14px;font-size:13.5px;color:var(--ink-2)}
+.seg button+button{border-left:1px solid var(--line)}
+.seg button.on{background:var(--accent);color:var(--accent-ink);font-weight:700}
+.preview{border:1px dashed var(--line-2);border-radius:var(--r-md);padding:14px 16px}
+.designs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.ds{border:2px solid var(--line);border-radius:var(--r-md);padding:8px;background:var(--bg);text-align:left;color:var(--ink)}
+.ds.on{border-color:var(--accent)}
+.ds-sw{height:46px;border-radius:var(--r-sm);display:flex;align-items:flex-end;gap:4px;padding:7px;margin-bottom:7px}
+.ds-sw i{display:block;height:10px;border-radius:3px}
+.ds-name{font-size:12.5px;font-weight:600}
+
+hr.sep{border:0;border-top:1px solid var(--line);margin:24px 0}
+
+/* 세부 평가: PC·폰 같은 크기 */
+.score-grid{gap:5px}
+.score-in label{font-size:10px;margin-bottom:2px}
+.field .score-in input{width:48px;height:22px;font-size:12px;font-weight:400}
+.score-in{min-width:0}
+.avg-box{height:22px;min-width:52px}
+.avg-box .k{font-size:10px}
+.avg-box .v{font-size:12px;font-weight:600}
+.field .ridi-row input{width:48px;height:22px;font-size:12px;font-weight:400}
+.ridi-row label,.ridi-row small{font-size:10px}
+#toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:var(--r-md);font-size:14px;font-weight:600;opacity:0;pointer-events:none;transition:.2s;z-index:100}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+@media (max-width:640px){
+  .brand span{display:none}
+  .fs-group span{display:none}
+  .overview{grid-template-columns:1fr}
+  .stats{grid-template-columns:repeat(3,1fr);gap:8px;order:-1}
+  .cd{min-height:44px;padding:4px;align-items:center}
+  .cd .bk,.cd .more{display:none}
+  .cd .dots{display:flex}
+  .cd.today .n{margin:-2px 0 0}
+  .stats{gap:8px}
+  .stat{padding:12px}
+  .stat .v{font-family:var(--ff-head);font-size:19px}
+  .rt .c-date{width:82px;padding-right:12px}
+  .rt tr.row td.c-date{padding-right:12px}
+  .rt .c-avg{width:60px;text-align:center;padding-right:0}
+  .rt tr.row td{padding:7px 6px}
+  .rt .c-tog{width:28px;padding-left:6px}
+  .detail-inner{padding:8px 10px 12px}
+  .detail-box{padding:14px}
+  .tier-head{padding:12px 14px;gap:10px}
+  .tier-num{font-family:var(--ff-head);font-size:18px;min-width:34px}
+  .row2{grid-template-columns:1fr}
+  .dlg-body{padding:18px 16px}
+  .picker-quick{margin-left:0}
+  .score-grid{grid-template-columns:repeat(4,max-content);gap:5px}
+  .score-in label{font-size:10px;margin-bottom:2px}
+  .rt th{font-size:calc(.78em - 1px)}
+  .cal-pop .ph{font-size:8.5px}
+  .cal-pop button b{font-size:10px}
+  .cal-pop .stars{font-size:8px}
+  .cal-pop .go{font-size:9px}
+  .toolbar{gap:6px;margin:12px 0 8px}
+  .search{height:34px;font-size:13px;padding-left:32px}
+  .search-box svg{left:11px;width:14px;height:14px}
+  #newBtn{height:34px;padding:0 12px;font-size:12.5px}
+  .score-in{min-width:0}
+  .field .score-in input{width:48px;height:22px;font-size:12px;font-weight:400}
+  .avg-box{height:22px;min-width:52px}
+  .avg-box .k{font-size:10px}
+  .avg-box .v{font-size:12px;font-weight:600}
+  .field .ridi-row input{width:48px;height:22px;font-size:12px;font-weight:400}
+  .ridi-row label,.ridi-row small{font-size:10px}
+  .row-sc{display:flex;margin:2px 0 0;gap:2px 3px}
+  .row-sc span{font-size:8px;padding:0 3px}
+  .rt tr.row .ttl{font-size:10px;line-height:16px}
+  .rt tr.row td.c-date{font-size:10px}
+  .avg-pill{font-size:9px;min-width:30px}
+}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <div class="brand"><div class="logo"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v17H6.5a1.5 1.5 0 0 0 0 3H20v0H6.5A2.5 2.5 0 0 1 4 19.5z"/></svg></div><span>독서 리뷰</span></div>
+    <div class="fs-group" title="본문 글자 크기">
+      <button id="fsDown" aria-label="글자 작게">가−</button>
+      <span id="fsLabel" class="num">11</span>
+      <button id="fsUp" aria-label="글자 크게">가+</button>
+    </div>
+    <button class="icon-btn" id="openSettings" aria-label="설정">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    </button>
+  </div>
+</header>
+
+<main class="wrap" style="padding-bottom:160px">
+  <div id="demoBanner" class="banner" hidden>체험 모드예요. 지금 쓰는 리뷰는 이 브라우저에만 저장돼요. Firebase를 연결하면 PC·모바일 어디서든 같은 리뷰가 보여요.</div>
+
+  <section id="loginView" class="login" hidden>
+    <div class="logo"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v17H6.5a1.5 1.5 0 0 0 0 3H20v0H6.5A2.5 2.5 0 0 1 4 19.5z"/></svg></div>
+    <h1>독서 리뷰</h1>
+    <p>구글 계정으로 로그인하면<br>어느 기기에서든 내 리뷰를 볼 수 있어요.</p>
+    <button class="btn primary" id="loginBtn">구글로 로그인</button>
+  </section>
+
+  <section id="appView" hidden>
+    <div class="overview">
+      <div class="cal" id="cal">
+        <div class="cal-head">
+          <button class="cal-nav" id="calPrev" aria-label="이전 달">‹</button>
+          <button class="cal-title" id="calTitle"></button>
+          <button class="cal-nav" id="calNext" aria-label="다음 달">›</button>
+          <button class="cal-today" id="calToday">오늘</button>
+          <button class="cal-fold" id="calFold"></button>
+        </div>
+        <div class="cal-body" id="calBody">
+          <div class="cal-grid cal-dow"><span>일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span></div>
+          <div class="cal-grid" id="calGrid"></div>
+          <div class="cal-pop" id="calPop" hidden></div>
+        </div>
+      </div>
+      <div class="stats">
+        <div class="stat"><div class="k">전체 리뷰</div><div class="v num" id="stTotal">0<small>편</small></div></div>
+        <div class="stat"><div class="k">올해 읽은 책</div><div class="v num" id="stYear">0<small>편</small></div></div>
+        <div class="stat"><div class="k" id="stMonthK">이번 달</div><div class="v num" id="stMonth">0<small>편</small></div></div>
+      </div>
+    </div>
+    <div class="toolbar">
+      <div class="search-box">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input class="search" id="search" type="search" placeholder="제목이나 내용으로 검색">
+      </div>
+      <button class="btn primary" id="newBtn">+ 새 리뷰</button>
+    </div>
+    <div class="sub-tools">
+      <button class="chip" id="expandAll">본문 모두 펼치기</button>
+      <button class="chip" id="collapseTiers">별점 칸 모두 접기</button>
+    </div>
+    <div id="list"></div>
+  </section>
+</main>
+
+<!-- 리뷰 작성/수정 -->
+<dialog id="editDlg">
+  <form class="dlg" id="editForm" method="dialog" novalidate>
+    <div class="dlg-head"><h2 id="editTitle">새 리뷰</h2><button type="button" class="icon-btn" data-close aria-label="닫기">✕</button></div>
+    <div class="dlg-body">
+      <div class="row2">
+        <div class="field"><label for="fTitle">제목</label><input type="text" id="fTitle" autocomplete="off" placeholder="책 제목"></div>
+        <div class="field"><label for="fDate">날짜</label><div class="date-wrap"><span class="date-text num" id="fDateText"></span><svg class="date-ic" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg><input type="date" id="fDate"></div></div>
+      </div>
+
+      <div class="field">
+        <span class="lbl">별점</span>
+        <div class="panel">
+          <div class="picker">
+            <span class="stars" id="picker" tabindex="0" role="slider" aria-valuemin="0.5" aria-valuemax="5" aria-label="별점"><span class="stars-bg">★★★★★</span><span class="stars-fg" style="width:0%">★★★★★</span></span>
+            <div class="dd" id="dd">
+              <button type="button" class="dd-btn" id="ddBtn" aria-haspopup="listbox" aria-expanded="false"><span class="picker-val num" id="pickerVal">–</span><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 9l6 6 6-6"/></svg></button>
+              <div class="dd-menu" id="ddMenu" role="listbox" hidden></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="field">
+        <span class="lbl">세부 평가</span>
+        <div class="guide">7=최고/미쳣다 · 6=와 너무 좋았다 · 5=좋았다~ · 4=무난쓰 · 3=살짝 아숩 · 2=별로… · 1=쓰레기</div>
+        <div class="panel">
+          <div class="scores">
+            <div class="score-grid" id="scoreGrid"></div>
+            <div class="avg-box"><span class="k">평균</span><span class="v num" id="avgLive">–</span></div>
+          </div>
+          <div class="ridi-row">
+            <label for="sc-ridi">리디 평점</label>
+            <input type="text" inputmode="decimal" id="sc-ridi" placeholder="–" autocomplete="off">
+            
+          </div>
+        </div>
+      </div>
+
+      <div class="field" style="margin-bottom:0"><label for="fContent">내용</label><textarea id="fContent" ></textarea></div>
+    </div>
+    <div class="dlg-foot">
+      <button type="button" class="btn danger" id="delInEdit" hidden>삭제</button>
+      <span style="margin-right:auto"></span>
+      <button type="button" class="btn" data-close>취소</button>
+      <button type="submit" class="btn primary" id="saveBtn">저장</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- 설정 -->
+<dialog id="setDlg">
+  <div class="dlg">
+    <div class="dlg-head"><h2>설정</h2><button type="button" class="icon-btn" data-close aria-label="닫기">✕</button></div>
+    <div class="dlg-body">
+      <div class="field">
+        <span class="lbl">리뷰 본문 글자 크기</span>
+        <div class="set-row"><button class="step" data-step="fsBody" data-d="-1">−</button><input type="range" id="sFsBody" min="8" max="36" step="1"><button class="step" data-step="fsBody" data-d="1">+</button><output id="oFsBody" class="num"></output></div>
+      </div>
+      <div class="field">
+        <span class="lbl">표 글자 크기</span>
+        <div class="set-row"><button class="step" data-step="fsTable" data-d="-1">−</button><input type="range" id="sFsTable" min="11" max="28" step="1"><button class="step" data-step="fsTable" data-d="1">+</button><output id="oFsTable" class="num"></output></div>
+      </div>
+      <div class="field">
+        <span class="lbl">줄 간격</span>
+        <div class="set-row"><input type="range" id="sLh" min="1.3" max="2.4" step="0.1"><output id="oLh" class="num"></output></div>
+      </div>
+      <div class="field">
+        <span class="lbl">본문 글꼴</span>
+        <div class="seg" id="segFont"><button data-v="sans">고딕</button><button data-v="serif">명조</button><button data-v="batang">바탕</button></div>
+      </div>
+      <div class="field">
+        <span class="lbl">본문 굵기</span>
+        <div class="seg" id="segWeight"><button data-v="200">아주 얇게</button><button data-v="300">얇게</button><button data-v="400">보통</button></div>
+      </div>
+      <div class="field">
+        <span class="lbl">미리보기</span>
+        <div class="preview content">책장을 덮고 나서도 한동안 그 문장이 머릿속을 떠나지 않았다.
+글자 크기와 줄 간격이 이렇게 보여요.</div>
+      </div>
+      <div class="field">
+        <span class="lbl">디자인</span>
+        <div class="designs" id="designs"></div>
+      </div>
+      <p style="font-size:12px;color:var(--ink-3);margin:-6px 0 0">글자·디자인 설정은 기기마다 따로 저장돼요.</p>
+      <hr class="sep">
+      <div class="field">
+        <span class="lbl">백업</span>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn sm" id="exportBtn">리뷰 전체 내려받기</button>
+          <button class="btn sm" id="importBtn">백업 파일 불러오기</button>
+          <input type="file" id="importFile" accept="application/json,.json" hidden>
+        </div>
+      </div>
+      <div class="field" id="accountField" hidden>
+        <span class="lbl">계정</span>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><span id="accountName" style="font-size:14px"></span><button class="btn sm" id="logoutBtn">로그아웃</button></div>
+      </div>
+    </div>
+  </div>
+</dialog>
+
+<div id="toast"></div>
+
+<script type="module">
+/* =========================================================
+   Firebase 설정 — 설정 가이드 3단계에서 복사한 값으로 바꿔주세요.
+   apiKey가 "여기에"로 시작하면 체험 모드(이 브라우저에만 저장)로 동작해요.
+   ========================================================= */
+const firebaseConfig = {
+  apiKey: "AIzaSyAAFaYGFvopMPPeslUl0aScRhVhmXZSdIg",
+  authDomain: "review-a4b97.firebaseapp.com",
+  projectId: "review-a4b97",
+  storageBucket: "review-a4b97.firebasestorage.app",
+  messagingSenderId: "141408500708",
+  appId: "1:141408500708:web:17d7af628362f1303025f1"
+};
+const FB_VER = "10.12.2";
+
+/* ---------- 기본값 ---------- */
+const TIERS = [5,4.5,4,3.5,3,2.5,2,1.5,1,0.5];
+// 평균에 들어가는 세부 항목 (리디는 따로)
+const SUBS = [['writing','필력&개연성'],['fun','재미'],['chars','등장인물'],['story','스토리']];
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid = () => (crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2));
+const today = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; };
+const fmtDate = s => s ? s.replaceAll('-', '.') : '';
+const lsGet = (k, d) => { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch { return d; } };
+const lsSet = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} };
+const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+const fmtN = n => n == null ? '–' : String(Math.round(n * 100) / 100);
+const isNum = v => typeof v === 'number' && !isNaN(v);
+function avgOf(sc){
+  const v = SUBS.map(([k]) => sc?.[k]).filter(isNum);
+  return v.length ? v.reduce((a, b) => a + b, 0) / v.length : null;
+}
+const starsHTML = (r, label = true) =>
+  `<span class="stars"${label ? ` aria-label="별점 ${r}"` : ''}><span class="stars-bg">★★★★★</span><span class="stars-fg" style="width:${r/5*100}%">★★★★★</span></span>`;
+const CHEV = `<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9l6 6 6-6"/></svg>`;
+const TRI = `<svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5l10 7-10 7z"/></svg>`;
+
+function toast(msg){ const t = $('#toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove('show'), 2200); }
+
+/* ---------- 화면 설정 (기기별) ---------- */
+const FONTS = {
+  sans: "'Pretendard',-apple-system,'Apple SD Gothic Neo','Malgun Gothic',sans-serif",
+  serif: "'Noto Serif KR','AppleMyungjo',serif",
+  batang: "'Gowun Batang','Noto Serif KR',serif"
+};
+const DESIGNS = [
+  ['paper','감성 서재','#f3ede2','#fbf8f2','#9a5b34'],
+  ['dark','모던 다크','#0f0f12','#17171c','#f5b83d'],
+  ['minimal','미니멀 화이트','#ffffff','#f6f6f6','#111111']
+];
+$('#designs').innerHTML = DESIGNS.map(([k, n, bg, sf, ac]) =>
+  `<button type="button" class="ds" data-v="${k}"><div class="ds-sw" style="background:${bg};border:1px solid ${sf}"><i style="width:40%;background:${sf};filter:brightness(${bg === '#ffffff' ? .92 : 1.4})"></i><i style="width:22%;background:${ac}"></i></div><div class="ds-name">${n}</div></button>`).join('');
+const settings = Object.assign({ fsBody:11, fsTable:15, lh:1.8, font:'sans', fw:300, design:'paper' }, lsGet('rv-settings4', {}));
+if (!DESIGNS.some(d => d[0] === settings.design)) settings.design = 'paper';
+function applySettings(){
+  const r = document.documentElement.style;
+  r.setProperty('--fs-body', settings.fsBody + 'px');
+  r.setProperty('--fs-table', settings.fsTable + 'px');
+  r.setProperty('--lh-body', settings.lh);
+  r.setProperty('--ff-body', FONTS[settings.font] || FONTS.sans);
+  document.documentElement.setAttribute('data-design', settings.design);
+  const d = DESIGNS.find(x => x[0] === settings.design);
+  if (d) document.querySelector('meta[name=theme-color]').content = d[2];
+  $('#fsLabel').textContent = settings.fsBody;
+  $('#sFsBody').value = settings.fsBody; $('#oFsBody').textContent = settings.fsBody + 'px';
+  $('#sFsTable').value = settings.fsTable; $('#oFsTable').textContent = settings.fsTable + 'px';
+  $('#sLh').value = settings.lh; $('#oLh').textContent = Number(settings.lh).toFixed(1);
+  document.documentElement.style.setProperty('--fw-body', settings.fw);
+  document.querySelectorAll('#segWeight button').forEach(b => b.classList.toggle('on', +b.dataset.v === settings.fw));
+  document.querySelectorAll('#segFont button').forEach(b => b.classList.toggle('on', b.dataset.v === settings.font));
+  document.querySelectorAll('#designs .ds').forEach(b => b.classList.toggle('on', b.dataset.v === settings.design));
+}
+// 사용자가 직접 바꿨을 때만 저장 (처음 열 때 기본값이 저장돼 버리지 않게)
+const saveSettings = () => lsSet('rv-settings4', settings);
+function setFs(key, val){ settings[key] = key === 'fsBody' ? clamp(val, 8, 36) : clamp(val, 11, 28); applySettings(); saveSettings(); }
+$('#fsDown').onclick = () => setFs('fsBody', settings.fsBody - 1);
+$('#fsUp').onclick = () => setFs('fsBody', settings.fsBody + 1);
+$('#sFsBody').oninput = e => setFs('fsBody', +e.target.value);
+$('#sFsTable').oninput = e => setFs('fsTable', +e.target.value);
+$('#sLh').oninput = e => { settings.lh = +e.target.value; applySettings(); saveSettings(); };
+document.querySelectorAll('[data-step]').forEach(b => b.onclick = () => setFs(b.dataset.step, settings[b.dataset.step] + +b.dataset.d));
+$('#segWeight').onclick = e => { const v = e.target.dataset?.v; if (v) { settings.fw = +v; applySettings(); saveSettings(); } };
+$('#segFont').onclick = e => { const v = e.target.dataset?.v; if (v) { settings.font = v; applySettings(); saveSettings(); } };
+$('#designs').onclick = e => { const b = e.target.closest('.ds'); if (b) { settings.design = b.dataset.v; applySettings(); saveSettings(); } };
+applySettings();
+
+/* ---------- 화면 상태 ---------- */
+let reviews = [];
+const ui = {
+  sortKey: lsGet('rv-sortKey', 'date'),
+  sortDir: lsGet('rv-sortDir', 'desc'),
+  search: '',
+  collapsed: lsGet('rv-collapsed', {}),
+  open: new Set()
+};
+
+function cmp(a, b){
+  if (ui.sortKey === 'avg') {
+    const x = avgOf(a.scores), y = avgOf(b.scores);
+    if (x == null && y == null) return 0;
+    if (x == null) return 1;          // 평균 없는 건 항상 아래로
+    if (y == null) return -1;
+    return ui.sortDir === 'asc' ? x - y : y - x;
+  }
+  let v;
+  if (ui.sortKey === 'title') v = (a.title || '').localeCompare(b.title || '', 'ko');
+  else v = (a.date || '').localeCompare(b.date || '') || (a.createdAt || 0) - (b.createdAt || 0);
+  return ui.sortDir === 'asc' ? v : -v;
+}
+const th = (k, label, cls = '') => `<th class="sortable ${cls}${ui.sortKey === k ? ' sorted' : ''}" data-sort="${k}">${label} <span class="arrow">${ui.sortKey === k ? (ui.sortDir === 'asc' ? '↑' : '↓') : ''}</span></th>`;
+
+function renderStats(){
+  $('#stTotal').innerHTML = `${reviews.length}<small>편</small>`;
+  const y = String(new Date().getFullYear());
+  $('#stYear').innerHTML = `${reviews.filter(r => (r.date || '').startsWith(y)).length}<small>편</small>`;
+  const m = ui.calMonth;
+  $('#stMonthK').textContent = `${+m.slice(5)}월에 읽은 책`;
+  $('#stMonth').innerHTML = `${reviews.filter(r => (r.date || '').startsWith(m)).length}<small>편</small>`;
+  renderCal();
+}
+
+/* ---------- 달력 ---------- */
+const ymOf = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+ui.calMonth = ymOf(new Date());
+ui.calSel = null;
+ui.calFolded = lsGet('rv-calFolded', false);
+function renderCal(){
+  const [Y, M] = ui.calMonth.split('-').map(Number);
+  $('#calTitle').textContent = `${Y}년 ${M}월`;
+  $('#cal').classList.toggle('folded', ui.calFolded);
+  $('#calFold').textContent = ui.calFolded ? '달력 펼치기' : '접기';
+  const first = new Date(Y, M - 1, 1).getDay(), days = new Date(Y, M, 0).getDate();
+  const byDay = {};
+  reviews.forEach(r => { if ((r.date || '').startsWith(ui.calMonth)) (byDay[+r.date.slice(8)] ||= []).push(r); });
+  const t = today();
+  let html = '';
+  for (let i = 0; i < first; i++) html += '<div class="cd out"></div>';
+  for (let d = 1; d <= days; d++) {
+    const ds = `${ui.calMonth}-${String(d).padStart(2,'0')}`, list = byDay[d] || [];
+    const sun = (first + d - 1) % 7 === 0;
+    const cls = ['cd', sun && 'sun', ds === t && 'today', list.length && 'has', ui.calSel === ds && 'sel'].filter(Boolean).join(' ');
+    html += `<${list.length ? 'button' : 'div'} class="${cls}" ${list.length ? `data-day="${ds}" title="${esc(list.map(r => r.title).join(', '))}"` : ''}>
+      <span class="n">${d}</span>
+      ${list.slice(0, 2).map(r => `<span class="bk">${esc(r.title)}</span>`).join('')}
+      ${list.length > 2 ? `<span class="more">+${list.length - 2}</span>` : ''}
+      ${list.length ? `<span class="dots">${'<i></i>'.repeat(Math.min(list.length, 3))}</span>` : ''}
+    </${list.length ? 'button' : 'div'}>`;
+  }
+  $('#calGrid').innerHTML = html;
+  const sel = ui.calSel && ui.calSel.startsWith(ui.calMonth) ? reviews.filter(r => r.date === ui.calSel) : [];
+  $('#calPop').hidden = !sel.length;
+  if (sel.length) $('#calPop').innerHTML = `<div class="ph">${fmtDate(ui.calSel)}에 쓴 리뷰</div>` +
+    sel.map(r => `<button data-jump="${esc(r.id)}"><b>${esc(r.title)}</b>${starsHTML(Number(r.rating), false)}<span class="go">보기 →</span></button>`).join('');
+}
+function moveMonth(n){
+  const [Y, M] = ui.calMonth.split('-').map(Number);
+  ui.calMonth = ymOf(new Date(Y, M - 1 + n, 1)); ui.calSel = null; renderStats();
+}
+$('#calPrev').onclick = () => moveMonth(-1);
+$('#calNext').onclick = () => moveMonth(1);
+$('#calToday').onclick = () => { ui.calMonth = ymOf(new Date()); ui.calSel = null; renderStats(); };
+$('#calTitle').onclick = () => $('#calToday').click();
+$('#calFold').onclick = () => { ui.calFolded = !ui.calFolded; lsSet('rv-calFolded', ui.calFolded); renderCal(); };
+$('#calGrid').onclick = e => {
+  const d = e.target.closest('[data-day]'); if (!d) return;
+  const list = reviews.filter(r => r.date === d.dataset.day);
+  if (list.length === 1) { ui.calSel = null; renderCal(); jumpTo(list[0].id); return; }
+  ui.calSel = ui.calSel === d.dataset.day ? null : d.dataset.day; renderCal();
+};
+$('#calPop').onclick = e => { const b = e.target.closest('[data-jump]'); if (b) jumpTo(b.dataset.jump); };
+// 달력에서 누른 리뷰로 이동해서 펼치기
+function jumpTo(id){
+  const r = reviews.find(x => x.id === id); if (!r) return;
+  ui.search = ''; $('#search').value = '';
+  ui.collapsed[r.rating] = false; lsSet('rv-collapsed', ui.collapsed);
+  ui.open.add(id); render();
+  const row = document.querySelector(`tr.row[data-id="${CSS.escape(id)}"]`);
+  if (row) { row.scrollIntoView({ behavior: 'smooth', block: 'center' }); row.classList.add('flash'); setTimeout(() => row.classList.remove('flash'), 1500); }
+}
+
+// 표의 제목 옆에 붙는 작은 점수들
+function rowScores(r){
+  const sc = r.scores || {};
+  const parts = SUBS.filter(([k]) => isNum(sc[k])).map(([k, l]) => `<span>${l}<b class="num">${fmtN(sc[k])}</b></span>`);
+  if (isNum(sc.ridi)) parts.push(`<span class="rd">리디<b class="num">${fmtN(sc.ridi)}</b></span>`);
+  return parts.length ? `<span class="row-sc">${parts.join('')}</span>` : '';
+}
+function scoreChips(r){
+  const sc = r.scores || {};
+  const chips = SUBS.filter(([k]) => isNum(sc[k])).map(([k, l]) => `<span class="sc">${l} <b class="num">${fmtN(sc[k])}</b></span>`);
+  if (isNum(sc.ridi)) chips.push(`<span class="sc ridi">리디 <b class="num">${fmtN(sc.ridi)}</b></span>`);
+  return chips.length ? `<div class="score-row">${chips.join('')}</div>` : '';
+}
+
+function render(){
+  renderStats();
+  const q = ui.search.trim().toLowerCase();
+  const list = q ? reviews.filter(r => (r.title || '').toLowerCase().includes(q) || (r.content || '').toLowerCase().includes(q)) : reviews;
+
+  if (!reviews.length) {
+    $('#list').innerHTML = `<div class="empty-all"><div class="big">아직 리뷰가 없어요</div><b>+ 새 리뷰</b>로 첫 리뷰를 써보세요.</div>`;
+    return;
+  }
+  if (q && !list.length) {
+    $('#list').innerHTML = `<div class="empty-all">"${esc(ui.search)}"에 맞는 리뷰가 없어요.</div>`;
+    return;
+  }
+
+  $('#list').innerHTML = TIERS.map(t => {
+    const rows = list.filter(r => Number(r.rating) === t).sort(cmp);
+    if (!rows.length) return '';  // 리뷰 없는 별점은 안 보이게
+    const collapsed = !!ui.collapsed[t];
+    if (!rows.length) {
+      return `<section class="tier empty"><div class="tier-head">${CHEV}<span class="tier-num num">${t.toFixed(1)}</span>${starsHTML(t)}<span class="tier-count">비어 있음</span></div></section>`;
+    }
+    const body = rows.map(r => {
+      const open = ui.open.has(r.id);
+      const a = avgOf(r.scores);
+      return `<tr class="row${open ? ' open' : ''}" data-id="${esc(r.id)}">
+          <td class="c-tog"><button class="tog" aria-label="본문 펼치기">${TRI}</button></td>
+          <td><span class="ttl">${esc(r.title)}</span>${rowScores(r)}</td>
+          <td class="c-avg"><span class="avg-pill num${a == null ? ' none' : ''}">${fmtN(a)}</span></td>
+          <td class="c-date num"><span>${esc(fmtDate(r.date))}</span></td>
+        </tr>
+        <tr class="detail"${open ? '' : ' hidden'}><td colspan="4"><div class="detail-inner"><div class="detail-box">
+          <div class="content${r.content?.trim() ? '' : ' none'}">${r.content?.trim() ? esc(r.content) : '작성한 내용이 없어요.'}</div>
+          <div class="detail-meta">${starsHTML(Number(r.rating), false)} <span class="num">${Number(r.rating).toFixed(1)}</span>
+            <span class="sp"><button class="btn sm" data-edit="${esc(r.id)}">수정</button><button class="btn sm danger" data-del="${esc(r.id)}">삭제</button></span>
+          </div>
+        </div></div></td></tr>`;
+    }).join('');
+    return `<section class="tier${collapsed ? ' collapsed' : ''}" data-tier="${t}">
+      <button class="tier-head" data-tierhead="${t}" aria-expanded="${!collapsed}">${CHEV}<span class="tier-num num">${t.toFixed(1)}</span>${starsHTML(t)}<span class="tier-count num">${rows.length}편</span></button>
+      <div class="tier-body"><table class="rt">
+        <thead><tr><th class="c-tog"></th>${th('title', '제목')}${th('avg', '평균', 'c-avg')}${th('date', '날짜', 'c-date')}</tr></thead>
+        <tbody>${body}</tbody></table></div>
+    </section>`;
+  }).join('');
+}
+
+/* 목록 클릭 처리 */
+$('#list').addEventListener('click', e => {
+  const h = e.target.closest('[data-sort]');
+  if (h) {
+    const k = h.dataset.sort;
+    if (ui.sortKey === k) ui.sortDir = ui.sortDir === 'asc' ? 'desc' : 'asc';
+    else { ui.sortKey = k; ui.sortDir = k === 'title' ? 'asc' : 'desc'; }
+    lsSet('rv-sortKey', ui.sortKey); lsSet('rv-sortDir', ui.sortDir);
+    render(); return;
+  }
+  const head = e.target.closest('[data-tierhead]');
+  if (head) {
+    const t = head.dataset.tierhead;
+    ui.collapsed[t] = !ui.collapsed[t]; lsSet('rv-collapsed', ui.collapsed);
+    head.closest('.tier').classList.toggle('collapsed', ui.collapsed[t]);
+    head.setAttribute('aria-expanded', !ui.collapsed[t]);
+    return;
+  }
+  const ed = e.target.closest('[data-edit]');
+  if (ed) { openEditor(reviews.find(r => r.id === ed.dataset.edit)); return; }
+  const del = e.target.closest('[data-del]');
+  if (del) { confirmDelete(del.dataset.del); return; }
+  const row = e.target.closest('tr.row');
+  if (row) {
+    const id = row.dataset.id;
+    const open = !ui.open.has(id);
+    open ? ui.open.add(id) : ui.open.delete(id);
+    row.classList.toggle('open', open);
+    row.nextElementSibling.hidden = !open;
+  }
+});
+
+$('#search').oninput = e => { ui.search = e.target.value; render(); };
+$('#expandAll').onclick = () => {
+  const allOpen = reviews.length && reviews.every(r => ui.open.has(r.id));
+  ui.open = allOpen ? new Set() : new Set(reviews.map(r => r.id));
+  if (!allOpen) { ui.collapsed = {}; lsSet('rv-collapsed', ui.collapsed); }
+  $('#expandAll').textContent = allOpen ? '본문 모두 펼치기' : '본문 모두 접기';
+  render();
+};
+$('#collapseTiers').onclick = () => {
+  const anyOpen = TIERS.some(t => !ui.collapsed[t]);
+  TIERS.forEach(t => ui.collapsed[t] = anyOpen);
+  lsSet('rv-collapsed', ui.collapsed);
+  $('#collapseTiers').textContent = anyOpen ? '별점 칸 모두 펼치기' : '별점 칸 모두 접기';
+  render();
+};
+
+/* ---------- 별점 선택기 ---------- */
+let pickRating = 0;
+const picker = $('#picker'), pickerFg = picker.querySelector('.stars-fg');
+function showPick(v){ pickerFg.style.width = (v/5*100) + '%'; $('#pickerVal').textContent = v ? v.toFixed(1) : '선택'; }
+function setPick(v){
+  pickRating = clamp(Math.round(v*2)/2, 0.5, 5); showPick(pickRating);
+  picker.setAttribute('aria-valuenow', pickRating);
+  document.querySelectorAll('#ddMenu .dd-opt').forEach(b => b.classList.toggle('on', +b.dataset.v === pickRating));
+}
+const ratingAt = e => { const r = picker.getBoundingClientRect(); return clamp(Math.ceil(((e.clientX - r.left) / r.width) * 10) / 2, 0.5, 5); };
+let dragging = false;
+picker.addEventListener('pointerdown', e => { dragging = true; picker.setPointerCapture(e.pointerId); setPick(ratingAt(e)); });
+picker.addEventListener('pointermove', e => { if (dragging) setPick(ratingAt(e)); else if (e.pointerType === 'mouse') showPick(ratingAt(e)); });
+picker.addEventListener('pointerup', () => dragging = false);
+picker.addEventListener('pointerleave', () => { if (!dragging) showPick(pickRating); });
+picker.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === 'ArrowUp') { setPick((pickRating || 0) + .5); e.preventDefault(); }
+  if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') { setPick((pickRating || 1) - .5); e.preventDefault(); }
+});
+/* 접이식 별점 목록 */
+const ddMenu = $('#ddMenu'), ddBtn = $('#ddBtn');
+ddMenu.innerHTML = TIERS.map(t => `<button type="button" class="dd-opt" role="option" data-v="${t}"><b>${t.toFixed(1)}</b>${starsHTML(t, false)}</button>`).join('');
+function setDd(open){
+  ddMenu.hidden = !open; ddBtn.setAttribute('aria-expanded', open);
+  if (open) {
+    const cur = ddMenu.querySelector('.dd-opt.on') || ddMenu.querySelector('.dd-opt');
+    ddMenu.scrollTop = cur.offsetTop - ddMenu.clientHeight / 2 + cur.offsetHeight / 2;
+    cur.focus({ preventScroll: true });
+  }
+}
+ddBtn.onclick = () => setDd(ddMenu.hidden);
+ddMenu.onclick = e => { const o = e.target.closest('.dd-opt'); if (o) { setPick(+o.dataset.v); setDd(false); ddBtn.focus(); } };
+ddMenu.addEventListener('keydown', e => {
+  const opts = [...ddMenu.querySelectorAll('.dd-opt')], i = opts.indexOf(document.activeElement);
+  if (e.key === 'ArrowDown') { opts[Math.min(i + 1, opts.length - 1)].focus(); e.preventDefault(); }
+  if (e.key === 'ArrowUp') { opts[Math.max(i - 1, 0)].focus(); e.preventDefault(); }
+  if (e.key === 'Escape') { setDd(false); ddBtn.focus(); e.preventDefault(); e.stopPropagation(); }
+});
+document.addEventListener('pointerdown', e => { if (!ddMenu.hidden && !e.target.closest('#dd')) setDd(false); });
+
+/* ---------- 세부 평가 입력 ---------- */
+$('#scoreGrid').innerHTML = SUBS.map(([k, l]) =>
+  `<div class="score-in"><label for="sc-${k}">${l}</label><input type="text" inputmode="decimal" id="sc-${k}" placeholder="–" autocomplete="off"></div>`).join('');
+const scoreKeys = [...SUBS.map(([k]) => k), 'ridi'];
+// 빈칸 → null, 0~5 숫자 → 숫자, 그 외 → NaN
+function readScore(k){
+  const raw = $('#sc-' + k).value.trim().replace(',', '.');
+  if (raw === '') return null;
+  const n = Number(raw);
+  // 세부 항목은 1~7, 리디 평점은 0~5
+  const [lo, hi] = k === 'ridi' ? [0, 5] : [1, 7];
+  return (isNaN(n) || n < lo || n > hi) ? NaN : n;
+}
+function updateAvgLive(){
+  const sc = {};
+  scoreKeys.forEach(k => {
+    const v = readScore(k);
+    $('#sc-' + k).classList.toggle('bad', Number.isNaN(v));
+    if (isNum(v)) sc[k] = v;
+  });
+  $('#avgLive').textContent = fmtN(avgOf(sc));
+}
+scoreKeys.forEach(k => $('#sc-' + k).addEventListener('input', updateAvgLive));
+
+/* ---------- 작성/수정 ---------- */
+const showDate = () => { $('#fDateText').textContent = fmtDate($('#fDate').value) || '날짜 선택'; };
+$('#fDate').addEventListener('input', showDate);
+$('#fDate').addEventListener('change', showDate);
+$('#fDate').addEventListener('click', e => { try { e.target.showPicker(); } catch {} });
+let editing = null;
+function openEditor(r){
+  editing = r || null;
+  $('#editTitle').textContent = r ? '리뷰 수정' : '새 리뷰';
+  $('#fTitle').value = r?.title || '';
+  $('#fDate').value = r?.date || today(); showDate();
+  $('#fContent').value = r?.content || '';
+  scoreKeys.forEach(k => { const v = r?.scores?.[k]; $('#sc-' + k).value = isNum(v) ? String(v) : ''; });
+  updateAvgLive();
+  pickRating = 0; showPick(0);
+  document.querySelectorAll('#ddMenu .dd-opt').forEach(b => b.classList.remove('on'));
+  setDd(false);
+  if (r) setPick(Number(r.rating));
+  $('#delInEdit').hidden = !r;
+  $('#editDlg').showModal();
+  $('#editDlg .dlg-body').scrollTop = 0;
+  if (!r) setTimeout(() => $('#fTitle').focus(), 50);
+}
+$('#newBtn').onclick = () => openEditor(null);
+$('#editForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const title = $('#fTitle').value.trim();
+  if (!title) { toast('제목을 적어주세요'); $('#fTitle').focus(); return; }
+  if (!pickRating) { toast('별점을 골라주세요'); return; }
+  const scores = {};
+  for (const k of scoreKeys) {
+    const v = readScore(k);
+    if (Number.isNaN(v)) { toast(k === 'ridi' ? '리디 평점은 0~5 사이 숫자로 적어주세요' : '세부 점수는 1~7 사이 숫자로 적어주세요'); $('#sc-' + k).focus(); return; }
+    if (isNum(v)) scores[k] = v;
+  }
+  const now = Date.now();
+  const r = {
+    id: editing?.id || uid(),
+    title, date: $('#fDate').value || today(), rating: pickRating,
+    scores, content: $('#fContent').value,
+    createdAt: editing?.createdAt || now, updatedAt: now
+  };
+  $('#saveBtn').disabled = true;
+  try {
+    await store.save(r);
+    ui.collapsed[r.rating] = false; lsSet('rv-collapsed', ui.collapsed);
+    $('#editDlg').close();
+    toast(`별 ${r.rating.toFixed(1)} 칸에 저장했어요`);
+  } catch (err) { console.error(err); toast('저장에 실패했어요. 인터넷 연결을 확인해 주세요'); }
+  finally { $('#saveBtn').disabled = false; }
+});
+$('#delInEdit').onclick = async () => { if (editing && await confirmDelete(editing.id)) $('#editDlg').close(); };
+async function confirmDelete(id){
+  const r = reviews.find(x => x.id === id); if (!r) return false;
+  if (!confirm(`'${r.title}' 리뷰를 삭제할까요?\n삭제하면 되돌릴 수 없어요.`)) return false;
+  try { await store.remove(id); ui.open.delete(id); toast('삭제했어요'); return true; }
+  catch (err) { console.error(err); toast('삭제에 실패했어요'); return false; }
+}
+
+/* 대화상자 닫기 */
+document.querySelectorAll('dialog').forEach(d => {
+  d.addEventListener('click', e => { if (e.target.closest('[data-close]') || e.target === d) d.close(); });
+});
+$('#openSettings').onclick = () => $('#setDlg').showModal();
+
+/* ---------- 백업 ---------- */
+$('#exportBtn').onclick = () => {
+  const blob = new Blob([JSON.stringify({ app: 'reading-reviews', version: 2, exportedAt: new Date().toISOString(), reviews }, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `독서리뷰-백업-${today()}.json`;
+  a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+};
+$('#importBtn').onclick = () => $('#importFile').click();
+$('#importFile').onchange = async e => {
+  const f = e.target.files[0]; e.target.value = ''; if (!f) return;
+  try {
+    const data = JSON.parse(await f.text());
+    const arr = Array.isArray(data) ? data : data.reviews;
+    if (!Array.isArray(arr)) throw new Error('형식 오류');
+    const valid = arr.filter(r => r && r.title && TIERS.includes(Number(r.rating)));
+    if (!confirm(`리뷰 ${valid.length}편을 불러올까요?\n같은 리뷰가 이미 있으면 백업 내용으로 덮어써요.`)) return;
+    for (const r of valid) await store.save({ ...r, id: r.id || uid(), rating: Number(r.rating), scores: r.scores || {}, createdAt: r.createdAt || Date.now(), updatedAt: r.updatedAt || Date.now() });
+    toast(`${valid.length}편을 불러왔어요`);
+  } catch (err) { console.error(err); toast('백업 파일을 읽지 못했어요'); }
+};
+
+/* ---------- 저장소 ---------- */
+let store;
+const setReviews = arr => { reviews = arr; render(); };
+
+const SAMPLE_DATA = null; // 예시 파일에서만 채워져요
+function makeLocalStore(){
+  let mem = SAMPLE_DATA ? JSON.parse(JSON.stringify(SAMPLE_DATA)) : lsGet('rv-demo-reviews', []);
+  const persist = () => { if (!SAMPLE_DATA) lsSet('rv-demo-reviews', mem); setReviews([...mem]); };
+  return {
+    start(){ setReviews([...mem]); },
+    async save(r){ const i = mem.findIndex(x => x.id === r.id); i >= 0 ? mem[i] = r : mem.push(r); persist(); },
+    async remove(id){ mem = mem.filter(x => x.id !== id); persist(); }
+  };
+}
+
+async function makeFirebaseStore(){
+  const base = `https://www.gstatic.com/firebasejs/${FB_VER}/`;
+  const [{ initializeApp }, A, F] = await Promise.all([
+    import(base + 'firebase-app.js'), import(base + 'firebase-auth.js'), import(base + 'firebase-firestore.js')
+  ]);
+  const app = initializeApp(firebaseConfig);
+  const auth = A.getAuth(app);
+  const db = F.getFirestore(app);
+  let user = null, unsub = null;
+  const col = () => F.collection(db, 'users', user.uid, 'reviews');
+
+  $('#loginBtn').onclick = async () => {
+    const provider = new A.GoogleAuthProvider();
+    try { await A.signInWithPopup(auth, provider); }
+    catch (err) {
+      console.error(err);
+      if (err.code === 'auth/popup-blocked') await A.signInWithRedirect(auth, provider);
+      else if (err.code === 'auth/unauthorized-domain') toast('Firebase에 이 사이트 주소를 승인된 도메인으로 추가해 주세요');
+      else if (err.code !== 'auth/popup-closed-by-user') toast('로그인에 실패했어요');
+    }
+  };
+  $('#logoutBtn').onclick = async () => { await A.signOut(auth); $('#setDlg').close(); };
+
+  return {
+    start(){
+      A.onAuthStateChanged(auth, u => {
+        user = u;
+        if (unsub) { unsub(); unsub = null; }
+        $('#loginView').hidden = !!u;
+        $('#appView').hidden = !u;
+        $('#accountField').hidden = !u;
+        if (!u) { setReviews([]); return; }
+        $('#accountName').textContent = u.email || u.displayName || '';
+        unsub = F.onSnapshot(col(),
+          snap => setReviews(snap.docs.map(d => ({ ...d.data(), id: d.id }))),
+          err => { console.error(err); toast('리뷰를 불러오지 못했어요. 보안 규칙을 확인해 주세요'); });
+      });
+    },
+    async save(r){ const { id, ...data } = r; await F.setDoc(F.doc(col(), id), data); },
+    async remove(id){ await F.deleteDoc(F.doc(col(), id)); }
+  };
+}
+
+/* ---------- 시작 ---------- */
+const demo = !firebaseConfig.apiKey || firebaseConfig.apiKey.startsWith('여기');
+if (demo) {
+  $('#demoBanner').hidden = false;
+  $('#appView').hidden = false;
+  store = makeLocalStore();
+  store.start();
+} else {
+  try { store = await makeFirebaseStore(); store.start(); }
+  catch (err) {
+    console.error(err);
+    document.querySelector('main').insertAdjacentHTML('afterbegin', '<div class="banner">Firebase에 연결하지 못했어요. index.html의 설정값을 다시 확인해 주세요.</div>');
+  }
+}
+</script>
+</body>
+</html>
